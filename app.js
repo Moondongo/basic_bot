@@ -33,7 +33,6 @@ const mention = async (chat, author) => {
         const contact = await client.getContactById(participant.id._serialized);
         obj.mentions.push(contact);
         obj.text += `@${participant.id.user} `;
-
         if(participant.id._serialized === author && participant.isAdmin){
             obj.isAdmin = true;
         }
@@ -42,7 +41,7 @@ const mention = async (chat, author) => {
 }
 
 const listen = async () => {
-    client.on('message', async msg => {
+    client.on('message_create', async msg => {
         const chat = await msg.getChat();
         const author = await msg.author;
         const body = msg.body.toLowerCase();
@@ -51,7 +50,7 @@ const listen = async () => {
             if(chat.isGroup){
                 const obj = await mention(chat, author);
 
-                if(obj.isAdmin){
+                if(obj.isAdmin || msg._data.id.fromMe){
                     const text = obj.text;
                     const mentions = obj.mentions;
                     await msg.reply(text, undefined, {mentions: mentions})          
